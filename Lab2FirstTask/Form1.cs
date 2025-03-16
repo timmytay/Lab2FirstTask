@@ -6,9 +6,9 @@
     {
       InitializeComponent();
     }
+
     private void Form1_Load(object sender, EventArgs e)
     {
-
     }
 
     private void button1_Click(object sender, EventArgs e)
@@ -17,7 +17,7 @@
       decimal value = KopeckAmount.Value;
 
       // Формируем сообщение для отображения
-      string message = $"Вы ввели {value} копеек.";
+      string message = ProcessInput(value); // Получаем результат из ProcessInput
 
       // Показываем сообщение с измененным заголовком и иконкой
       MessageBox.Show(message, "Вывод ответа", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -56,6 +56,47 @@
 
         this.BackColor = Color.White; // Светлый фон для формы
         this.ForeColor = Color.Black; // Черный текст для формы
+      }
+    }
+
+    public string ProcessInput(decimal input)
+    {
+      int costInKopecks = (int)input; // Преобразуем decimal в int
+      int rubles = costInKopecks / 100;
+      int kopecks = costInKopecks % 100;
+
+      // Формируем строку результата
+      string result = $"{rubles} {GetRublesEnding(rubles)} ";
+      result += $"{kopecks} {GetKopecksEnding(kopecks)}";
+
+      return result; // Возвращаем результат
+    }
+
+    private static string GetRublesEnding(int rubles)
+    {
+      if (rubles >= 11 && rubles <= 14)
+      {
+        return "рублей";
+      }
+      else
+      {
+        return rubles % 10 == 1 ? "рубль" :
+               rubles % 10 >= 2 && rubles % 10 <= 4 ? "рубля" :
+               "рублей";
+      }
+    }
+
+    private static string GetKopecksEnding(int kopecks)
+    {
+      if (kopecks >= 11 && kopecks <= 14)
+      {
+        return "копеек";
+      }
+      else
+      {
+        return kopecks % 10 == 1 ? "копейка" :
+               kopecks % 10 >= 2 && kopecks % 10 <= 4 ? "копейки" :
+               "копеек";
       }
     }
   }
