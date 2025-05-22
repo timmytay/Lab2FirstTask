@@ -1,103 +1,93 @@
-﻿namespace Lab2FirstTask
+﻿using System.Windows.Forms.VisualStyles;
+
+namespace Lab2FirstTask
 {
   public partial class Form1 : Form
   {
     public Form1()
     {
       InitializeComponent();
-    }
-
-    private void Form1_Load(object sender, EventArgs e)
-    {
+      KopeckAmount.Text = Properties.Settings.Default.numerKopecks.ToString();
     }
 
     private void button1_Click(object sender, EventArgs e)
     {
-      // Получаем значение из NumericUpDown
-      decimal value = KopeckAmount.Value;
-
-      // Формируем сообщение для отображения
-      string message = ProcessInput(value); // Получаем результат из ProcessInput
-
-      // Показываем сообщение с измененным заголовком и иконкой
-      MessageBox.Show(message, "Вывод ответа", MessageBoxButtons.OK, MessageBoxIcon.Information);
-    }
-
-    private void checkBox1_CheckedChanged(object sender, EventArgs e)
-    {
-      if (checkTheme.Checked) // Если CheckBox отмечен
+      try
       {
-        // Устанавливаем темные цвета для формы
-        checkTheme.BackColor = Color.DimGray; // Темный фон
-        checkTheme.ForeColor = Color.White; // Белый текст
+        int val = int.Parse(KopeckAmount.Text);
 
-        // Устанавливаем цвета для элементов управления
-        button1.BackColor = Color.DimGray;
-        button1.ForeColor = Color.White;
+        if (val < 1 || val > 9999)
+          throw new ArgumentOutOfRangeException();
 
-        KopeckAmount.BackColor = Color.DimGray;
-        KopeckAmount.ForeColor = Color.White;
-
-        this.BackColor = Color.DimGray;
-        this.ForeColor = Color.White;
+        string message = ProcessInput(val);
+        MessageBox.Show(message, "Вывод ответа", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        Properties.Settings.Default.numerKopecks = val;
+        Properties.Settings.Default.Save();
       }
-      else // Если CheckBox не отмечен
+      catch (FormatException)
       {
-        // Возвращаем все в светлое состояние
-        checkTheme.BackColor = Color.White; // Светлый фон
-        checkTheme.ForeColor = Color.Black; // Черный текст
-
-        // Устанавливаем цвета для элементов управления
-        button1.BackColor = Color.White; // Светлый фон для кнопки
-        button1.ForeColor = Color.Black; // Черный текст для кнопки
-
-        KopeckAmount.BackColor = Color.White; // Светлый фон для другого элемента
-        KopeckAmount.ForeColor = Color.Black; // Черный текст для другого элемента
-
-        this.BackColor = Color.White; // Светлый фон для формы
-        this.ForeColor = Color.Black; // Черный текст для формы
+        MessageBox.Show("Вы можете вводить лишь числа.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
+      }
+      catch (ArgumentOutOfRangeException)
+      {
+        MessageBox.Show("Необходимо ввести целое число от 1 до 9999.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
       }
     }
 
-    public string ProcessInput(decimal input)
+    public string ProcessInput(int input)
     {
-      int costInKopecks = (int)input; // Преобразуем decimal в int
+      int costInKopecks = input;
       int rubles = costInKopecks / 100;
       int kopecks = costInKopecks % 100;
 
-      // Формируем строку результата
       string result = $"{rubles} {GetRublesEnding(rubles)} ";
       result += $"{kopecks} {GetKopecksEnding(kopecks)}";
 
-      return result; // Возвращаем результат
+      return result;
     }
 
     private static string GetRublesEnding(int rubles)
     {
       if (rubles >= 11 && rubles <= 14)
-      {
         return "рублей";
-      }
       else
-      {
         return rubles % 10 == 1 ? "рубль" :
                rubles % 10 >= 2 && rubles % 10 <= 4 ? "рубля" :
                "рублей";
-      }
     }
 
     private static string GetKopecksEnding(int kopecks)
     {
       if (kopecks >= 11 && kopecks <= 14)
-      {
         return "копеек";
-      }
       else
-      {
         return kopecks % 10 == 1 ? "копейка" :
                kopecks % 10 >= 2 && kopecks % 10 <= 4 ? "копейки" :
                "копеек";
+    }
+
+    private void KopeckAmount_KeyPress(object sender, KeyPressEventArgs e)
+    {
+      if (e.KeyChar == (char)Keys.Enter)
+      {
+        button1.PerformClick();
+        e.Handled = true;
       }
+    }
+
+    private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
+    {
+      if (e.KeyChar == (char)Keys.Enter)
+      {
+        button1.PerformClick();
+        e.Handled = true;
+      }
+    }
+
+    // Обработчик события закрытия формы для сохранения настроек
+    private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+    {
+      Properties.Settings.Default.Save(); // Здесь мы сохраняем настройки автоматически
     }
   }
 }
